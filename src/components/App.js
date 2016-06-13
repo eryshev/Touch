@@ -1,8 +1,9 @@
 import React from 'react';
+import GameField from './GameField';
 
 const App = () => (
     <div>
-        <span>Hello12322!</span>
+        <GameField />
     </div>
 );
 
