@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import Box from './Box';
-import {timeTick} from '../actions';
+import Rect from './Rect';
+import {timeTick, boxActive, boxInactive} from '../actions';
 
 class GameField extends Component {
     componentDidMount() {
@@ -23,17 +23,37 @@ class GameField extends Component {
 
     render() {
         const {store} = this.context;
-        const {boxes} = store.getState();
+        const {page, field, boxes} = store.getState();
 
         return (
             <svg
                 width={500}
                 height={500}
             >
+                <Rect
+                    x={0}
+                    y={0}
+                    width={500}
+                    height={500}
+                    fill={"yellow"}
+                />
                 {boxes.map(box =>
-                    <Box
+                    <Rect
                         key={box.id}
                         {...box}
+                        onMouseDown={() => {
+                            store.dispatch(boxActive(box.id));
+                        }}
+                        onTouchStart={() => {
+                            store.dispatch(boxActive(box.id));
+                        }}
+                        onTouchEnd={() => {
+                            store.dispatch(boxInactive(box.id));
+                        }}
+                        onMouseUp={() => {
+                            store.dispatch(boxInactive(box.id));
+                        }}
+                        fill={box.active ? 'red' : 'blue'}
                     />
                 )}
             </svg>
