@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import Rect from './Rect';
+import Box from './Box';
 import {timeTick, boxActive, boxInactive} from '../actions';
 
 class GameField extends Component {
@@ -23,24 +23,27 @@ class GameField extends Component {
 
     render() {
         const {store} = this.context;
-        const {page, field, boxes} = store.getState();
+        const {field, boxes} = store.getState();
 
         return (
             <svg
-                width={500}
-                height={500}
+                width={field.width * field.scale.x}
+                height={field.height * field.scale.y}
             >
-                <Rect
+                <rect
                     x={0}
                     y={0}
-                    width={500}
-                    height={500}
+                    width={field.width * field.scale.x}
+                    height={field.height * field.scale.y}
                     fill={"yellow"}
                 />
                 {boxes.map(box =>
-                    <Rect
+                    <Box
                         key={box.id}
-                        {...box}
+                        width={box.width * field.scale.x}
+                        height={box.height * field.scale.y}
+                        x={box.x * field.scale.x}
+                        y={box.y * field.scale.y}
                         onMouseDown={() => {
                             store.dispatch(boxActive(box.id));
                         }}

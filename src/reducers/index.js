@@ -1,21 +1,52 @@
 import {START_GAME, TIME_TICK, BOX_ACTIVE, BOX_INACTIVE} from '../actions';
 import initialBox from './initialBox';
 
-const initialState = {
-    time: Date.now(),
-    field: {
-        width: 500,
-        height: 500
-    },
-    page: {
-        width: window.width,
-        height: window.height
-    },
-    maxNumberBoxes: 3,
-    boxes: []
+const setFieldScale = (field) => {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    const maxWidth = 500;
+
+    let width = Math.min(windowWidth, maxWidth);
+    let height = width / field.ratio;
+
+    if (height < windowHeight) {
+        height = windowHeight;
+        width = height * field.ratio;
+    }
+
+    return {
+        ...field,
+        scale: {
+            x: width / field.width,
+            y: height / field.height
+        }
+    };
 };
 
-const reducer = (state = initialState, action) => {
+const initialState = () => {
+    const state = {
+        time: Date.now(),
+        field: {
+            width: 2000,
+            height: 0,
+            ratio: 6 / 3,
+            scale: {
+                x: 0,
+                y: 0
+            }
+        },
+        maxNumberBoxes: 3,
+        boxes: []
+    };
+
+    state.field.height = state.field.width / state.field.ratio;
+    state.field = setFieldScale(state.field);
+
+    return state;
+};
+
+const reducer = (state = initialState(), action) => {
     switch (action.type) {
         case START_GAME:
             return state;
@@ -54,7 +85,7 @@ const timeTick = state => {
 
     if (boxes.length < state.maxNumberBoxes) {
         for (let i = state.boxes.length; i < state.maxNumberBoxes; i++) {
-            boxes.push(initialBox(state.field));
+            boxes.push(initialBox(state));
         }
     }
 

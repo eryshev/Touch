@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Rect = ({
+const Box = ({
     width,
     height,
     x,
@@ -14,10 +14,10 @@ const Rect = ({
 }) => {
     return (
         <rect
-            width={width}
-            height={height}
-            x={x}
-            y={y}
+            width={Math.round(width)}
+            height={Math.round(height)}
+            x={Math.round(x - width / 2)}
+            y={Math.round(y - height / 2)}
             onMouseDown={onMouseDown}
             onMouseUp={onMouseUp}
             onMouseOut={onMouseOut}
@@ -28,4 +28,4 @@ const Rect = ({
     );
 };
 
-export default Rect;
+export default Box;
