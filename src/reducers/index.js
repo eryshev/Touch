@@ -1,19 +1,17 @@
-import {START_GAME, TIME_TICK, BOX_ACTIVE, BOX_INACTIVE} from '../actions';
+import {START_GAME, TIME_TICK, BOX_ACTIVE, BOX_INACTIVE, WINDOW_RESIZE} from '../actions';
 import initialBox from './initialBox';
 
 const setFieldScale = (field) => {
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
 
-    const maxWidth = 500;
+    const maxWidth = 1000;
 
     let width = Math.min(windowWidth, maxWidth);
     let height = width / field.ratio;
+    height = Math.min(windowHeight, height);
 
-    if (height < windowHeight) {
-        height = windowHeight;
-        width = height * field.ratio;
-    }
+    width = height * field.ratio;
 
     return {
         ...field,
@@ -26,18 +24,20 @@ const setFieldScale = (field) => {
 
 const initialState = () => {
     const state = {
+        startTime: Date.now(),
         time: Date.now(),
         field: {
             width: 2000,
             height: 0,
-            ratio: 6 / 3,
+            ratio: 8 / 3,
             scale: {
                 x: 0,
                 y: 0
             }
         },
         maxNumberBoxes: 3,
-        boxes: []
+        boxes: [],
+        score: 0
     };
 
     state.field.height = state.field.width / state.field.ratio;
@@ -67,9 +67,12 @@ const reducer = (state = initialState(), action) => {
             };
 
         case BOX_INACTIVE:
+            return boxInactiveReducer(state, action);
+
+        case WINDOW_RESIZE:
             return {
                 ...state,
-                boxes: state.boxes.filter(b => !(b.active && b.id == action.id))
+                field: setFieldScale(state.field)
             };
 
         default:
@@ -81,18 +84,16 @@ const timeTick = state => {
     const now = Date.now();
     const delta = now - state.time;
 
-    const boxes = [...state.boxes];
-
-    if (boxes.length < state.maxNumberBoxes) {
-        for (let i = state.boxes.length; i < state.maxNumberBoxes; i++) {
-            boxes.push(initialBox(state));
-        }
+    if (state.boxes.length < state.maxNumberBoxes) {
+        state = initialBox(state);
     }
+
+    state = removeOldBoxes(state);
 
     return {
         ...state,
         time: now,
-        boxes: boxes.map(moveBox.bind(null, delta))
+        boxes: state.boxes.map(moveBox.bind(null, delta))
     };
 };
 
@@ -106,6 +107,28 @@ const moveBox = (delta, box) => {
     return {
         ...box,
         y
+    };
+};
+
+const removeOldBoxes = state => {
+    const filteredBoxes = state.boxes.filter(b =>
+        b.y - b.height / 2 < state.field.height
+    );
+
+    return {
+        ...state,
+        score: state.score - (state.boxes.length - filteredBoxes.length),
+        boxes: filteredBoxes
+    };
+};
+
+const boxInactiveReducer = (state, action) => {
+    const filteredBoxes = state.boxes.filter(b => !(b.active && b.id == action.id));
+
+    return {
+        ...state,
+        score: state.score + (state.boxes.length - filteredBoxes.length),
+        boxes: filteredBoxes
     };
 };
 

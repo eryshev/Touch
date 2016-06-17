@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Box from './Box';
-import {timeTick, boxActive, boxInactive} from '../actions';
+import {timeTick, boxActive, boxInactive, windowResize} from '../actions';
 
 class GameField extends Component {
     componentDidMount() {
@@ -14,29 +14,36 @@ class GameField extends Component {
             this.ticker = window.requestAnimationFrame(ticker);
         };
         ticker();
+
+        this.windowOnResize = () => {
+            store.dispatch(windowResize());
+        };
+
+        window.addEventListener('resize', this.windowOnResize);
     }
 
     componentWillUnmount() {
         this.unsubscribe();
         window.cancelAnimationFrame(this.ticker);
+        window.removeEventListener(this.windowOnResize);
     }
 
     render() {
         const {store} = this.context;
-        const {field, boxes} = store.getState();
+        const {score, field, boxes} = store.getState();
 
         return (
             <svg
                 width={field.width * field.scale.x}
                 height={field.height * field.scale.y}
             >
-                <rect
-                    x={0}
-                    y={0}
-                    width={field.width * field.scale.x}
-                    height={field.height * field.scale.y}
-                    fill={"yellow"}
-                />
+                <text
+                    x={5}
+                    y={35}
+                    fontSize={50}
+                >
+                    {score}
+                </text>
                 {boxes.map(box =>
                     <Box
                         key={box.id}
@@ -56,7 +63,7 @@ class GameField extends Component {
                         onMouseUp={() => {
                             store.dispatch(boxInactive(box.id));
                         }}
-                        fill={box.active ? 'red' : 'blue'}
+                        active={box.active}
                     />
                 )}
             </svg>

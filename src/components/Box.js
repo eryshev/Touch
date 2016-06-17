@@ -10,7 +10,7 @@ const Box = ({
     onMouseOut,
     onTouchStart,
     onTouchEnd,
-    fill
+    active
 }) => {
     return (
         <rect
@@ -18,12 +18,16 @@ const Box = ({
             height={Math.round(height)}
             x={Math.round(x - width / 2)}
             y={Math.round(y - height / 2)}
+            rx={5}
+            ry={5}
             onMouseDown={onMouseDown}
             onMouseUp={onMouseUp}
             onMouseOut={onMouseOut}
             onTouchStart={onTouchStart}
             onTouchEnd={onTouchEnd}
-            fill={fill}
+            style={{
+                fill: active ? '#eb3d3d' : '#3a75fa'
+            }}
         />
     );
 };
